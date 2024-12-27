@@ -1,4 +1,5 @@
 ﻿using Client.Settings;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Sockets;
@@ -8,43 +9,36 @@ namespace Client.Services
 {
     public class ClientService
     {
-        public event Action<string> LogChanged;
         private readonly MainSettings _settings;
-        public Socket Socket { get; set; }
+        private readonly ILogger<ClientService> _logger;
 
-        public ClientService(IOptions<MainSettings> options)
+        public ClientService(IOptions<MainSettings> options, ILogger<ClientService> logger)
         {
             _settings = options.Value;
+            _logger = logger;
         }
 
-        public void Connect()
+        public Socket Connect()
         {
             IPAddress[] IPs = Dns.GetHostAddresses(_settings.Host);
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            LogChanged?.Invoke($"Establishing connection with {_settings.Host}");
-            Socket.Connect(IPs[0], _settings.Port);
-            LogChanged?.Invoke($"Connected: {Socket.Connected}");
+            _logger.LogInformation($"Establishing connection with {_settings.Host}");
+            socket.Connect(IPs[0], _settings.Port);
+            _logger.LogInformation($"Connected: {socket.Connected}");
 
-            Thread threadReceive = new Thread(new ParameterizedThreadStart(Receive));
-            threadReceive.Start(Socket);
+            Task.Run(() => Receive(socket));
+            return socket;
         }
 
-        public void Send(string message)
+        private async Task Receive(Socket socket)
         {
-            Socket.Send(Encoding.ASCII.GetBytes(message));
-            LogChanged?.Invoke($"Sent: {message}");
-        }
-
-        void Receive(object socketObj)
-        {
-            var socket = (Socket)socketObj;
             while (true)
             {
                 byte[] buffer = new byte[1024];
-                int result = socket.Receive(buffer);
+                int result = await socket.ReceiveAsync(buffer);
                 var message = Encoding.ASCII.GetString(buffer, 0, result);
-                LogChanged?.Invoke($"Message received: {message}");
+                _logger.LogInformation($"Message received: {message}");
             }
         }
     }

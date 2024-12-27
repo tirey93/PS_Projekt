@@ -26,9 +26,6 @@ namespace Server.Services
             socket.Bind(new IPEndPoint(IPAddress.Parse(_settings.Host), _settings.Port));
             socket.Listen(_settings.Backlog);
             _logger.LogInformation("Server open on port: {0}", _settings.Port);
-            Socket cli = socket.Accept();
-            _logger.LogInformation("Connected with {0}", cli.RemoteEndPoint.ToString());
-
 
             while (true)
             {
