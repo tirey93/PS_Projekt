@@ -27,19 +27,9 @@ namespace Client.Services
             socket.Connect(IPs[0], _settings.Port);
             _logger.LogInformation($"Connected: {socket.Connected}");
 
-            Task.Run(() => Receive(socket));
             return socket;
         }
 
-        private async Task Receive(Socket socket)
-        {
-            while (true)
-            {
-                byte[] buffer = new byte[1024];
-                int result = await socket.ReceiveAsync(buffer);
-                var message = Encoding.ASCII.GetString(buffer, 0, result);
-                _logger.LogInformation($"Message received: {message}");
-            }
-        }
+       
     }
 }

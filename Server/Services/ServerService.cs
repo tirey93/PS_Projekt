@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using Client.Extensions;
 
 namespace Server.Services
 {
@@ -49,11 +50,13 @@ namespace Server.Services
                         break;
                     }
 
-                    var message = Encoding.ASCII.GetString(buffer, 0, result);
-                    _logger.LogInformation($"Message received from {clientSocket.RemoteEndPoint}: {message}");
+                    var tServ = DateTime.Now;
+                    var tServStr = tServ.ToExactString();
+                    _logger.LogInformation($"Message received from {clientSocket.RemoteEndPoint}");
+                    _logger.LogInformation($"TServ: {tServStr}");
 
-                    await clientSocket.SendAsync(Encoding.ASCII.GetBytes(message), SocketFlags.None);
-                    _logger.LogInformation($"Message send to {clientSocket.RemoteEndPoint}: {message}");
+                    await clientSocket.SendAsync(Encoding.ASCII.GetBytes(tServStr), SocketFlags.None);
+                    _logger.LogInformation($"Message send to {clientSocket.RemoteEndPoint}");
                 }
             }
             catch (Exception ex)
