@@ -4,7 +4,7 @@ namespace Client.Extensions
 {
     public static class DateTimeExtensions
     {
-        private const string Format = "HH:mm:ss ffffff";
+        private const string Format = "HH:mm:ss fffffff";
 
         public static string ToExactString(this DateTime dateTime)
         {
