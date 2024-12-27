@@ -18,13 +18,13 @@ var serviceProvider = new ServiceCollection()
     .AddTransient<ServerService>()
     .BuildServiceProvider();
 
-var echoServerService = serviceProvider.GetRequiredService<ServerService>();
+var serverService = serviceProvider.GetRequiredService<ServerService>();
 var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 var logger = loggerFactory.CreateLogger<Program>();
 
 try
 {
-    echoServerService.Start();
+    await serverService.StartAsync();
 }
 catch (Exception ex)
 {
