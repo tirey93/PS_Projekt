@@ -58,7 +58,7 @@ namespace Client.Services
                         t2.ToExactString(),
                         tServ.ToExactString(),
                         delta.ToString(),
-                        serverTime.ToExactString()
+                        serverTime.ToString("O")
                     });
 
                     Thread.Sleep(_settings.CurrentValue.Frequency);
