@@ -3,7 +3,6 @@ using Client.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Client.Extensions;
 
 var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
@@ -16,23 +15,17 @@ var serviceProvider = new ServiceCollection()
         x.AddConsole();
     })
     .Configure<MainSettings>(configuration.GetSection(nameof(MainSettings)))
-    .AddTransient<ClientService>()
+    .AddTransient<ClientCommand>()
+    .AddTransient<SocketService>()
     .BuildServiceProvider();
 
-var clientService = serviceProvider.GetRequiredService<ClientService>();
+var clientCommand = serviceProvider.GetRequiredService<ClientCommand>();
 var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 var logger = loggerFactory.CreateLogger<Program>();
 
 try
 {
-    var socket = clientService.Connect();
-
-    while (true)
-    {
-        socket.Send("test123");
-        logger.LogInformation($"Sent");
-        Thread.Sleep(1000);
-    }
+    clientCommand.Execute();
 }
 catch (Exception ex)
 {

@@ -7,12 +7,12 @@ using System.Text;
 
 namespace Client.Services
 {
-    public class ClientService
+    public class SocketService
     {
         private readonly MainSettings _settings;
-        private readonly ILogger<ClientService> _logger;
+        private readonly ILogger<SocketService> _logger;
 
-        public ClientService(IOptions<MainSettings> options, ILogger<ClientService> logger)
+        public SocketService(IOptions<MainSettings> options, ILogger<SocketService> logger)
         {
             _settings = options.Value;
             _logger = logger;
