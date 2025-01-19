@@ -34,32 +34,42 @@ namespace Client.Services
         public void Execute()
         {
             var socket = _socketService.Connect();
+            var isRun = true;
 
             AnsiConsole.Live(new Panel(Align.Center(_table)))
             .Start(ctx =>
             {
-                while (_settings.CurrentValue.IsRun)
+                while (_settings.CurrentValue.IsRun && isRun)
                 {
-                    var t1 = DateTime.Now;
-                    socket.Send(new byte[1]);
-
-                    var tServStr = Receive(socket);
-                    var tServ = tServStr.FromExactString();
-
-                    var t2 = DateTime.Now;
-                    var tCli = t2;
-
-                    var delta = GetDelta(t1, t2, tServ, tCli);
-                    var serverTime = new DateTime(tCli.Ticks + delta);
-
-                    _table.AddRow(new string[5]
+                    try
                     {
+                        var t1 = DateTime.Now;
+                        socket.Send(new byte[1]);
+
+                        var tServStr = Receive(socket);
+                        var tServ = tServStr.FromExactString();
+
+                        var t2 = DateTime.Now;
+                        var tCli = t2;
+
+                        var delta = GetDelta(t1, t2, tServ, tCli);
+                        var serverTime = new DateTime(tCli.Ticks + delta);
+
+                        _table.AddRow(new string[5]
+                        {
                         t1.ToExactString(),
                         t2.ToExactString(),
                         tServ.ToExactString(),
                         delta.ToString(),
                         serverTime.ToString("O")
-                    });
+                        });
+                    }
+                    catch (SocketException ex)
+                    {
+                        Console.WriteLine("Server has been disconnected");
+                        isRun = false;
+                    }
+                    
 
                     Thread.Sleep(_settings.CurrentValue.Frequency);
                     ctx.Refresh();
